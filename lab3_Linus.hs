@@ -10,33 +10,29 @@ get var (x:xs) = if var == fst x then snd x else get var xs
 onion :: Variable -> Value -> State -> State    --tested
 onion var val st = (var,val) : [x | x <- st, var /= fst x]
 
-data Expression = Var Variable |
- Lit Value |
- Aop Op Expression Expression      -- Aritmetic operators
- deriving (Eq, Ord, Show)
+data Expression = Var Variable | Lit Value | Aop Op Expression Expression deriving (Eq, Ord, Show) -- Aritmetic operators
 
 type Op = String
 
-eval:: Expression -> State -> Value
+eval:: Expression -> State -> Value --tested
 eval (Var v) state = get v state
-eval (Lit v) state = v
-eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state) -- Missing apply op now
+eval (Lit v) _ = v
+eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state)
 
-valueToInteger :: Value -> Integer
+valueToInteger :: Value -> Integer  --tested
 valueToInteger (Intval x) = x
 
-apply :: Op -> Value -> Value -> Value
+apply :: Op -> Value -> Value -> Value  --tested
 apply op v1 v2
-    | op == "+" = Intval ((value))
-    | op == "-" = 
-    | op == "*" = 
-    | op == "/" = 
+    | op == "+" = Intval $ integer1 + integer2
+    | op == "-" = Intval $ integer1 - integer2
+    | op == "*" = Intval $ integer1 * integer2
+    | op == "/" = Intval $ round $ fromIntegral integer1 / fromIntegral integer2
+        where integer1 = valueToInteger v1
+              integer2 = valueToInteger v2
 
-data Bexpression = Blit Bvalue |
- Bop Op Bexpression Bexpression |   -- Boolean operators
- Rop Op Expression Expression       -- Relational operators 	
- deriving (Eq, Ord,Show) 
-
+data Bexpression = Blit Bvalue | Bop Op Bexpression Bexpression | Rop Op Expression Expression deriving (Eq, Ord,Show) 
+                                        -- Boolean operators               -- Relational operators
 data Bvalue = Boolval Bool deriving (Eq, Ord,Show)  
 
 data Statement = Skip |
@@ -58,7 +54,7 @@ data Blocktype = Nil |
  deriving (Show)
 
 
-s1::State
+s1 :: State
 s1=[("x",(Intval 1)) ,("y",(Intval 5))]
 
 --p0::Statement -- An assignment
