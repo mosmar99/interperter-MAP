@@ -19,21 +19,30 @@ eval (Var v) state = get v state
 eval (Lit v) _ = v
 eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state)
 
-valueToInteger :: Value -> Integer  --tested
-valueToInteger (Intval x) = x
-
 apply :: Op -> Value -> Value -> Value  --tested
-apply op v1 v2
-    | op == "+" = Intval $ integer1 + integer2
-    | op == "-" = Intval $ integer1 - integer2
-    | op == "*" = Intval $ integer1 * integer2
-    | op == "/" = Intval $ round $ fromIntegral integer1 / fromIntegral integer2
-        where integer1 = valueToInteger v1
-              integer2 = valueToInteger v2
+apply op (Intval x) (Intval y)
+    | op == "+" = Intval $ x + y
+    | op == "-" = Intval $ x - y
+    | op == "*" = Intval $ x * y
+    | op == "/" = Intval $ round $ fromIntegral x / fromIntegral y
 
-data Bexpression = Blit Bvalue | Bop Op Bexpression Bexpression | Rop Op Expression Expression deriving (Eq, Ord,Show) 
+data Bexpression = Blit Bvalue | Bop Op Bexpression Bexpression | Rop Op Expression Expression deriving (Eq, Ord,Show)
                                         -- Boolean operators               -- Relational operators
-data Bvalue = Boolval Bool deriving (Eq, Ord,Show)  
+data Bvalue = Boolval Bool deriving (Eq, Ord,Show)
+
+--Task 3
+beval :: Bexpression -> State -> Bvalue
+beval (Blit b) _ = b
+beval (Bop op b1 b2) st = bapply op (beval b1 st) (beval b2 st)
+--beval (Rop op e1 e2) st = rapply op 
+
+bapply :: Op -> Bvalue -> Bvalue -> Bvalue
+bapply op b1@(Boolval x) b2@(Boolval y)
+    | op == "&&" = 
+    | op == "||" = 
+
+--rapply :: Op -> 
+--rapply
 
 data Statement = Skip |
  Assignment Target Source |
