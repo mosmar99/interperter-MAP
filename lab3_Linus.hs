@@ -5,7 +5,7 @@ data Value = Intval Integer deriving (Eq, Ord,Show)
 
 --Task 1
 get :: Variable -> State -> Value   --tested
-get var st = head [snd x | x <- st, var == fst x]
+get var (x:xs) = if var == fst x then snd x else get var xs
 
 onion :: Variable -> Value -> State -> State    --tested
 onion var val st = (var,val) : [x | x <- st, var /= fst x]
