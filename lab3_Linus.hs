@@ -18,9 +18,19 @@ data Expression = Var Variable |
 type Op = String
 
 eval:: Expression -> State -> Value
---eval (Var v) state = get v state
+eval (Var v) state = get v state
 eval (Lit v) state = v
---eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state) -- Missing apply op now
+eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state) -- Missing apply op now
+
+valueToInteger :: Value -> Integer
+valueToInteger (Intval x) = x
+
+apply :: Op -> Value -> Value -> Value
+apply op v1 v2
+    | op == "+" = Intval ((value))
+    | op == "-" = 
+    | op == "*" = 
+    | op == "/" = 
 
 data Bexpression = Blit Bvalue |
  Bop Op Bexpression Bexpression |   -- Boolean operators
