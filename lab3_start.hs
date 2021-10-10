@@ -1,12 +1,25 @@
 type Binding = (Variable,Value)
 type State = [Binding]
 type Variable = String
-data Value = Intval Integer deriving (Eq, Ord,Show)  
+data Value = Intval Integer deriving (Eq, Ord,Show)
 
-data Expression = Var Variable |
- Lit Value |
- Aop Op Expression Expression      -- Aritmetic operators
- deriving (Eq, Ord, Show)
+-- task 1
+get :: Variable -> State -> Value
+get var ((nm,v):binds) = if var == nm then v else get var binds
+
+onion :: Variable -> Value -> State -> State
+onion var val = map (\(nm, v) -> if nm == var then (nm, val) else (nm, v))
+
+-- test 1
+{-
+ghci> get "red" [("yellow",(Intval 5)),("red",(Intval 3))]
+Intval 3
+-}
+
+data Expression = Var Variable
+    | Lit Value
+    | Aop Op Expression Expression -- Aritmetic operators 
+    deriving (Eq,Ord,Show)
 
 type Op = String
 
@@ -18,13 +31,13 @@ eval (Lit v) state = v
 data Bexpression = Blit Bvalue |
  Bop Op Bexpression Bexpression |   -- Boolean operators
  Rop Op Expression Expression       -- Relational operators 	
- deriving (Eq, Ord,Show) 
+ deriving (Eq, Ord,Show)
 
-data Bvalue = Boolval Bool deriving (Eq, Ord,Show)  
+data Bvalue = Boolval Bool deriving (Eq, Ord,Show)
 
 data Statement = Skip |
  Assignment Target Source |
- Block Blocktype | 
+ Block Blocktype |
  Loop Test Body |
  Conditional Test Thenbranch Elsebranch
  deriving (Show)
@@ -36,7 +49,7 @@ type Body = Statement
 type Thenbranch = Statement
 type Elsebranch = Statement
 
-data Blocktype = Nil | 
+data Blocktype = Nil |
  Nonnil Statement Blocktype
  deriving (Show)
 
