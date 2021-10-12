@@ -93,22 +93,38 @@ type Body = Statement
 type Thenbranch = Statement
 type Elsebranch = Statement
 
+m :: Statement -> State -> State
+m Skip state = state
+m (Assignment target source) state = onion target (eval source state) state 
+--  target = name, source = arithmetic value, state = binds
+m (Conditional test thenbranch elsebranch) state = 
+    if beval test state == Boolval True then m thenbranch state else m elsebranch state
+m (Loop t b) state 
+    | beval t state == Boolval True = ...
+    | otherwise = m (Loop t b) state
+
+{- PASSED
+ghci> m p0 s1
+[("x",Intval 2),("y",Intval 5)]
+ghci> m p2 s1
+[("x",Intval 6),("y",Intval 5)]
+-}
+
 data Blocktype = Nil |
  Nonnil Statement Blocktype
  deriving (Show)
 
-
 s1::State
-s1=[("x",(Intval 1)) ,("y",(Intval 5))]
+s1=[("x", Intval 1) ,("y", Intval 5)]
 
---p0::Statement -- An assignment
---p0 = (Assignment "x" (Aop "+" (Var "x") (Lit ( Intval 1))))
+p0::Statement -- An assignment
+p0 = (Assignment "x" (Aop "+" (Var "x") (Lit ( Intval 1))))
 
---p1::Statement -- A loop. 
---p1=(Loop (Rop "<" (Var "x") (Lit(Intval 10))) (Assignment "x" (Aop "+" (Var "x") (Lit(Intval 1)))))
+p1::Statement -- A loop. 
+p1 = (Loop (Rop "<" (Var "x") (Lit(Intval 10))) (Assignment "x" (Aop "+" (Var "x") (Lit(Intval 1)))))
 
---p2::Statement -- An IF-statement.
---p2=(Conditional (Rop ">" (Var "x") (Var "y")) (Assignment (Var "x") (Var "y")) (Assignment "x" (Aop "+" (Var "x") (Var "y"))))
+p2::Statement -- An IF-statement.
+p2 = (Conditional (Rop ">" (Var "x") (Var "y")) (Assignment "x" (Var "y")) (Assignment "x" (Aop "+" (Var "x") (Var "y"))))
 
 --p3::Statement -- A Block (i.e. program) without instructions
 --p3=(Block Nil)
