@@ -62,12 +62,14 @@ bapply "&&" (Boolval bval1) (Boolval bval2) = Boolval(bval1 && bval2)
 bapply "||" (Boolval bval1) (Boolval bval2) = Boolval(bval1 || bval2)
 
 rapply :: Op -> Value -> Value -> Bvalue
-rapply "<" (Intval x) (Intval y) = if x < y then Boolval True else Boolval False
-rapply ">" (Intval x) (Intval y) = if x > y then Boolval True else Boolval False
-rapply "<=" (Intval x) (Intval y) = if x <= y then Boolval True else Boolval False
-rapply ">=" (Intval x) (Intval y) = if x >= y then Boolval True else Boolval False
-rapply "==" (Intval x) (Intval y) = if x == y then Boolval True else Boolval False
-rapply "!=" (Intval x) (Intval y) = if x /= y then Boolval True else Boolval False
+rapply op (Intval x) (Intval y) = Boolval (compareWith op x y)
+  where
+    compareWith "<" = (<)
+    compareWith ">" = (>)
+    compareWith "<=" = (<=)
+    compareWith ">=" = (>=)
+    compareWith "==" = (==)
+    compareWith "!=" = (/=)
 
 {- PASSED
 ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]
