@@ -8,25 +8,41 @@ get :: Variable -> State -> Value
 get var ((nm,v):binds) = if var == nm then v else get var binds
 
 onion :: Variable -> Value -> State -> State
-onion var val = map (\(nm, v) -> if nm == var then (nm, val) else (nm, v))
+onion var valExc = map (\(nm, valCurr) -> if nm == var then (nm, valExc) else (nm, valCurr))
 
 -- test 1
-{-
+{- PASSED
 ghci> get "red" [("yellow",(Intval 5)),("red",(Intval 3))]
 Intval 3
 -}
 
-data Expression = Var Variable
-    | Lit Value
-    | Aop Op Expression Expression -- Aritmetic operators 
+data Expression = Var Variable | Lit Value | Aop Op Expression Expression -- Aritmetic operators 
     deriving (Eq,Ord,Show)
 
 type Op = String
 
 eval:: Expression -> State -> Value
---eval (Var v) state = get v state
-eval (Lit v) state = v
---eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state) -- Missing apply op now
+eval (Var v) binds = get v binds
+eval (Lit v) binds = v
+eval (Aop op e1 e2) binds = apply op (eval e1 binds) (eval e2 binds) -- Missing apply op now
+
+-- task 2
+
+apply :: Op -> Value -> Value -> Value
+apply "+" (Intval v1) (Intval v2) = Intval (v1 + v2)
+apply "-" (Intval v1) (Intval v2) = Intval (v1 - v2)
+apply "*" (Intval v1) (Intval v2) = Intval (v1 * v2)
+apply "/" (Intval v1) (Intval v2) = Intval (round $ fromIntegral v1 / fromIntegral v2)
+
+{- PASSED
+ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]  
+ghci> eval (Var "x") s1 
+Intval 1
+ghci> eval (Aop "+" (Var "x") (Lit (Intval 4))) s1
+Intval 5
+ghci> eval (Aop "+" (Var "x") (Aop "*" (Lit (Intval 4)) (Var "y"))) s1
+Intval 21
+-}
 
 data Bexpression = Blit Bvalue |
  Bop Op Bexpression Bexpression |   -- Boolean operators
@@ -34,6 +50,32 @@ data Bexpression = Blit Bvalue |
  deriving (Eq, Ord,Show)
 
 data Bvalue = Boolval Bool deriving (Eq, Ord,Show)
+
+-- task 3
+beval :: Bexpression -> State -> Bvalue
+beval (Blit bv) _ = bv
+beval (Bop op bv1 bv2) binds = bapply op (beval bv1 binds) (beval bv2 binds)
+beval (Rop op v1 v2) binds = rapply op (eval v1 binds) (eval v2 binds)
+
+bapply :: Op -> Bvalue -> Bvalue -> Bvalue
+bapply "&&" (Boolval bval1) (Boolval bval2) = Boolval(bval1 && bval2)
+bapply "||" (Boolval bval1) (Boolval bval2) = Boolval(bval1 || bval2)
+
+rapply :: Op -> Value -> Value -> Bvalue
+rapply "<" (Intval x) (Intval y) = if x < y then Boolval True else Boolval False
+rapply ">" (Intval x) (Intval y) = if x > y then Boolval True else Boolval False
+rapply "<=" (Intval x) (Intval y) = if x <= y then Boolval True else Boolval False
+rapply ">=" (Intval x) (Intval y) = if x >= y then Boolval True else Boolval False
+rapply "==" (Intval x) (Intval y) = if x == y then Boolval True else Boolval False
+rapply "!=" (Intval x) (Intval y) = if x /= y then Boolval True else Boolval False
+
+{- PASSED
+ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]
+ghci> beval (Bop "&&" (Blit (Boolval True)) (Rop "<" (Var "x") (Lit (Intval 3)))) s1
+Boolval True
+ghci> beval (Bop "&&" (Rop "<" (Var "y") (Lit (Intval 2))) (Rop "<" (Var "x") (Lit (Intval 3)))) s1
+Boolval False
+-}
 
 data Statement = Skip |
  Assignment Target Source |
