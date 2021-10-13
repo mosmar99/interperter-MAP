@@ -1,0 +1,32 @@
+-- test 1
+{- PASSED
+ghci> get "red" [("yellow",(Intval 5)),("red",(Intval 3))]
+Intval 3
+-}
+
+{- PASSED
+ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]  
+ghci> eval (Var "x") s1 
+Intval 1
+ghci> eval (Aop "+" (Var "x") (Lit (Intval 4))) s1
+Intval 5
+ghci> eval (Aop "+" (Var "x") (Aop "*" (Lit (Intval 4)) (Var "y"))) s1
+Intval 21
+-}
+
+{- PASSED
+ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]
+ghci> beval (Bop "&&" (Blit (Boolval True)) (Rop "<" (Var "x") (Lit (Intval 3)))) s1
+Boolval True
+ghci> beval (Bop "&&" (Rop "<" (Var "y") (Lit (Intval 2))) (Rop "<" (Var "x") (Lit (Intval 3)))) s1
+Boolval False
+-}
+
+{- PASSED
+ghci> m p0 s1
+[("x",Intval 2),("y",Intval 5)]
+ghci> m p1 s1
+[("x",Intval 10),("y",Intval 5)]
+ghci> m p2 s1
+[("x",Intval 6),("y",Intval 5)]
+-}
