@@ -19,11 +19,10 @@ eval (Lit v) _ = v
 eval (Aop op e1 e2) state = apply op (eval e1 state) (eval e2 state)
 
 apply :: Op -> Value -> Value -> Value  --tested
-apply op (Intval x) (Intval y)
-    | op == "+" = Intval $ x + y
-    | op == "-" = Intval $ x - y
-    | op == "*" = Intval $ x * y
-    | op == "/" = Intval $ round $ fromIntegral x / fromIntegral y
+apply "+" (Intval x) (Intval y) = Intval $ x + y
+apply "-" (Intval x) (Intval y) = Intval $ x - y
+apply "*" (Intval x) (Intval y) = Intval $ x * y
+apply "/" (Intval x) (Intval y) = Intval $ round $ fromIntegral x / fromIntegral y
 
 data Bexpression = Blit Bvalue | Bop Op Bexpression Bexpression | Rop Op Expression Expression deriving (Eq,Ord,Show)
                                         -- Boolean operators               -- Relational operators
@@ -58,12 +57,8 @@ type Elsebranch = Statement
 m :: Statement -> State -> State    --tested
 m (Skip) state = state
 m (Assignment target source) state = onion target (eval source state) state
-m (Loop test body) state
-    | beval test state == Boolval True = m (Loop test body) (m body state)
-    | otherwise = state --i.e. skip
-m (Conditional test thenbranch elsebranch) state
-    | beval test state == Boolval True = m thenbranch state
-    | otherwise = m elsebranch state
+m (Loop test body) state = if beval test state == Boolval True then m (Loop test body) (m body state) else state    --i.e. skip
+m (Conditional test thenbranch elsebranch) state = if beval test state == Boolval True then m thenbranch state else m elsebranch state
 
 data Blocktype = Nil | Nonnil Statement Blocktype deriving (Show)
 
@@ -71,13 +66,13 @@ s1 :: State
 s1=[("x",(Intval 1)),("y",(Intval 5))]
 
 p0 :: Statement -- An assignment
-p0 = (Assignment "x" (Aop "+" (Var "x") (Lit (Intval 1))))
+p0 = (Assignment "x" (Aop "+" (Var "x") (Lit (Intval 1))))  --tested
 
 p1 :: Statement -- A loop
-p1 = (Loop (Rop "<" (Var "x") (Lit(Intval 10))) (Assignment "x" (Aop "+" (Var "x") (Lit(Intval 1)))))
+p1 = (Loop (Rop "<" (Var "x") (Lit(Intval 10))) (Assignment "x" (Aop "+" (Var "x") (Lit(Intval 1)))))   --tested
 
 p2 :: Statement -- An IF-statement
-p2 = (Conditional (Rop ">" (Var "x") (Var "y")) (Assignment "x" (Var "y")) (Assignment "x" (Aop "+" (Var "x") (Var "y"))))
+p2 = (Conditional (Rop ">" (Var "x") (Var "y")) (Assignment "x" (Var "y")) (Assignment "x" (Aop "+" (Var "x") (Var "y"))))  --tested
 
 --p3 :: Statement -- A Block (i.e. program) without instructions
 --p3 = (Block Nil)
