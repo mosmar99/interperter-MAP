@@ -35,20 +35,16 @@ beval (Bop op b1 b2) st = bapply op (beval b1 st) (beval b2 st)
 beval (Rop op e1 e2) st = rapply op (eval e1 st) (eval e2 st)
 
 bapply :: Op -> Bvalue -> Bvalue -> Bvalue  --tested
-bapply op (Boolval x) (Boolval y)
-    | op == "&&" && x == True && y == True = Boolval True 
-    | op == "||" && (x == True || y == True) = Boolval True
-    | otherwise = Boolval False 
+bapply "&&" (Boolval x) (Boolval y) = Boolval $ x == True && y == True
+bapply "||" (Boolval x) (Boolval y) = Boolval $ x == True || y == True
 
 rapply :: Op -> Value -> Value -> Bvalue    --tested
-rapply op (Intval x) (Intval y)
-    | op == "<" && x < y = Boolval True 
-    | op == "<=" && x <= y = Boolval True
-    | op == "==" && x == y = Boolval True 
-    | op == "!=" && x /= y = Boolval True 
-    | op == ">=" && x >= y = Boolval True 
-    | op == ">" && x > y = Boolval True
-    | otherwise = Boolval False
+rapply "<" (Intval x) (Intval y) = Boolval $ x < y
+rapply "<=" (Intval x) (Intval y) = Boolval $ x <= y
+rapply "==" (Intval x) (Intval y) = Boolval $ x == y
+rapply "!=" (Intval x) (Intval y) = Boolval $ x /= y
+rapply ">=" (Intval x) (Intval y) = Boolval $ x >= y
+rapply ">" (Intval x) (Intval y) = Boolval $ x > y
 
 data Statement = Skip | Assignment Target Source | Block Blocktype | Loop Test Body | Conditional Test Thenbranch Elsebranch deriving Show
 
@@ -59,11 +55,11 @@ type Body = Statement
 type Thenbranch = Statement
 type Elsebranch = Statement
 
-m :: Statement -> State -> State
+m :: Statement -> State -> State    --tested
 m (Skip) state = state
 m (Assignment target source) state = onion target (eval source state) state
-m (Loop test body) state    --fix
-    | beval test state == Boolval True = 
+m (Loop test body) state
+    | beval test state == Boolval True = m (Loop test body) (m body state)
     | otherwise = state --i.e. skip
 m (Conditional test thenbranch elsebranch) state
     | beval test state == Boolval True = m thenbranch state
