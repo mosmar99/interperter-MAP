@@ -100,8 +100,8 @@ m (Assignment target source) state = onion target (eval source state) state
 m (Conditional test thenbranch elsebranch) state = 
     if beval test state == Boolval True then m thenbranch state else m elsebranch state
 m (Loop t b) state 
-    | beval t state == Boolval True = ...
-    | otherwise = m (Loop t b) state
+    | beval t state == Boolval True = m (Loop t b) (m b state)  
+    | otherwise = state
 
 {- PASSED
 ghci> m p0 s1
