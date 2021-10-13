@@ -44,13 +44,13 @@ bapply "&&" (Boolval bval1) (Boolval bval2) = Boolval(bval1 && bval2)
 bapply "||" (Boolval bval1) (Boolval bval2) = Boolval(bval1 || bval2)
 
 rapply :: Op -> Value -> Value -> Bvalue
-rapply op (Intval x) (Intval y) = Boolval (compareWith op x y)
-  where compareWith "<" = (<)
-        compareWith ">" = (>)
-        compareWith "<=" = (<=)
-        compareWith ">=" = (>=)
-        compareWith "==" = (==)
-        compareWith "!=" = (/=)
+rapply op (Intval x) (Intval y) = Boolval (opFn) op x y)
+  where (opFn) "<" = (<)
+        (opFn) ">" = (>)
+        (opFn) "<=" = (<=)
+        (opFn) ">=" = (>=)
+        (opFn) "==" = (==)
+        (opFn) "!=" = (/=)
 
 m :: Statement -> State -> State
 m Skip state = state 
