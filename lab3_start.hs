@@ -100,12 +100,12 @@ data Blocktype = Nil |
  deriving (Show)
 
 m :: Statement -> State -> State
-m Skip state = state
+m Skip state = state 
 m (Assignment target source) state = onion target (eval source state) state 
 m (Loop t b) state = if beval t state == Boolval True then m (Loop t b) (m b state) else state
 m (Conditional test thenbranch elsebranch) state = if beval test state == Boolval True then m thenbranch state else m elsebranch state
-m (Block Nil) = id
-m (Block (Nonnil s b))  = m (Block b) . m s
+m (Block Nil) state = state
+m (Block (Nonnil s b)) state = m (Block b) (m s state)
 
 {- PASSED
 ghci> m p0 s1
