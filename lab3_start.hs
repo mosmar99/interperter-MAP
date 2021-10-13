@@ -79,6 +79,8 @@ ghci> beval (Bop "&&" (Rop "<" (Var "y") (Lit (Intval 2))) (Rop "<" (Var "x") (L
 Boolval False
 -}
 
+-- task 4/5
+
 data Statement = Skip |
  Assignment Target Source |
  Block Blocktype |
@@ -93,26 +95,26 @@ type Body = Statement
 type Thenbranch = Statement
 type Elsebranch = Statement
 
+data Blocktype = Nil |
+ Nonnil Statement Blocktype
+ deriving (Show)
+
 m :: Statement -> State -> State
 m Skip state = state
 m (Assignment target source) state = onion target (eval source state) state 
---  target = name, source = arithmetic value, state = binds
-m (Conditional test thenbranch elsebranch) state = 
-    if beval test state == Boolval True then m thenbranch state else m elsebranch state
-m (Loop t b) state 
-    | beval t state == Boolval True = m (Loop t b) (m b state)  
-    | otherwise = state
+m (Loop t b) state = if beval t state == Boolval True then m (Loop t b) (m b state) else state
+m (Conditional test thenbranch elsebranch) state = if beval test state == Boolval True then m thenbranch state else m elsebranch state
+m (Block Nil) = id
+m (Block (Nonnil s b))  = m (Block b) . m s
 
 {- PASSED
 ghci> m p0 s1
 [("x",Intval 2),("y",Intval 5)]
+ghci> m p1 s1
+[("x",Intval 10),("y",Intval 5)]
 ghci> m p2 s1
 [("x",Intval 6),("y",Intval 5)]
 -}
-
-data Blocktype = Nil |
- Nonnil Statement Blocktype
- deriving (Show)
 
 s1::State
 s1=[("x", Intval 1) ,("y", Intval 5)]
@@ -126,11 +128,11 @@ p1 = (Loop (Rop "<" (Var "x") (Lit(Intval 10))) (Assignment "x" (Aop "+" (Var "x
 p2::Statement -- An IF-statement.
 p2 = (Conditional (Rop ">" (Var "x") (Var "y")) (Assignment "x" (Var "y")) (Assignment "x" (Aop "+" (Var "x") (Var "y"))))
 
---p3::Statement -- A Block (i.e. program) without instructions
---p3=(Block Nil)
+p3::Statement -- A Block (i.e. program) without instructions
+p3=(Block Nil)
 
---p4::Statement -- A Block (i.e. program) with instructions
---p4=(Block (Nonnil p2 (Nonnil p1 Nil)))
+p4::Statement -- A Block (i.e. program) with instructions
+p4=(Block (Nonnil p2 (Nonnil p1 Nil)))
 
---run::Statement->State 
---run program = m program s1
+run::Statement->State 
+run program = m program s1
