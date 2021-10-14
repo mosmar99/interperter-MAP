@@ -25,7 +25,7 @@ onion var valExc = map (\(nm, valCurr) -> if nm == var then (nm, valExc) else (n
 eval:: Expression -> State -> Value
 eval (Var v) binds = get v binds
 eval (Lit v) binds = v
-eval (Aop op e1 e2) binds = apply op (eval e1 binds) (eval e2 binds) -- Missing apply op now
+eval (Aop op e1 e2) binds = apply op (eval e1 binds) (eval e2 binds)
 
 apply :: Op -> Value -> Value -> Value
 apply "+" (Intval v1) (Intval v2) = Intval (v1 + v2)
@@ -33,7 +33,6 @@ apply "-" (Intval v1) (Intval v2) = Intval (v1 - v2)
 apply "*" (Intval v1) (Intval v2) = Intval (v1 * v2)
 apply "/" (Intval v1) (Intval v2) = Intval (round $ fromIntegral v1 / fromIntegral v2)
 
--- task 3
 beval :: Bexpression -> State -> Bvalue
 beval (Blit bv) _ = bv
 beval (Bop op bv1 bv2) binds = bapply op (beval bv1 binds) (beval bv2 binds)
@@ -44,7 +43,7 @@ bapply "&&" (Boolval bval1) (Boolval bval2) = Boolval(bval1 && bval2)
 bapply "||" (Boolval bval1) (Boolval bval2) = Boolval(bval1 || bval2)
 
 rapply :: Op -> Value -> Value -> Bvalue
-rapply op (Intval x) (Intval y) = Boolval (opFn) op x y)
+rapply op (Intval x) (Intval y) = Boolval (opFn op x y)
   where (opFn) "<" = (<)
         (opFn) ">" = (>)
         (opFn) "<=" = (<=)
