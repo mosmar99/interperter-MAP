@@ -89,15 +89,46 @@ sFib :: State
 sFib = [("counter",(Intval 3)),("Intval 2",(Intval 1)),("Intval 1",(Intval 1))]
 
 fib :: Statement
-fib = Loop (Blit (Boolval True)) (Block fibBlock)
+fib = Loop (Blit (Boolval True)) fibBlock
 
-fibBlock :: Blocktype
-fibBlock = Nonnil calcNewVal $ Nonnil counterIncrease $ Nil
+fibBlock :: Statement
+fibBlock = Block $ Nonnil calcNewVal $ Nonnil counterIncrease $ Nil
 
 calcNewVal :: Statement
-calcNewVal = Assignment (show (get "counter" sFib)) $ Aop "+" v1 v2 --create new Var with value v1 + v2
-    where v1 = Lit $ snd $ sFib !! 2    --2nd to last value
+calcNewVal = Assignment newVarName $ Aop "+" v1 v2  --create new Var with the value v1 + v2
+    where newVarName = show $ get "counter" sFib    --the value of "counter" is used for the name of the new fibonacci number
+          v1 = Lit $ snd $ sFib !! 2    --2nd to last value
           v2 = Lit $ snd $ sFib !! 1    --last value
                                         --sFib !! 0 is counter
 counterIncrease :: Statement
 counterIncrease = Assignment "counter" $ Aop "+" (Var "counter") $ Lit $ Intval 1   --increase "counter" with 1
+
+{-  Pseudo-code
+while(True){
+    v1 = 2nd to last number
+    v2 = last number
+    newNumber = v1 + v2
+    newVarName = <value of "counter">
+    (newVarName,newValue) : <list of fibonacci numbers>
+    counter = counter + 1
+}
+-}
+
+{-  output example
+Prelude> sFib
+    [("counter",Intval 3),("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> sFib2 = m fibBlock sFib
+Prelude> sFib3 = m fibBlock sFib2
+Prelude> sFib4 = m fibBlock sFib3
+
+Prelude>
+Prelude>
+Prelude> sFib
+    [("counter",Intval 3),("Intval 2",Intval 1),("Intval 1",Intval 1)]  --fine
+Prelude> sFib2
+    [("counter",Intval 4),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]    --fine
+Prelude> sFib3
+    [("counter",Intval 5),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]    --("Intval 4",Intval 3) is missing
+Prelude> sFib4
+    [("counter",Intval 6),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]    --("Intval 4",Intval 3) and ("Intval 5",Intval 5) are missing
+-}
