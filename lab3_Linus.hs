@@ -91,16 +91,16 @@ sSphere = [("Radius",(Intval 7))]
 sphere :: Blocktype
 sphere = Nonnil dia $ Nonnil circ $ Nonnil area $ Nonnil vol Nil
 
-dia :: Statement
+dia :: Statement    --2*r
 dia = Assignment "Diameter" (Aop "*" (Lit (Intval 2)) (Var "Radius"))
 
-circ :: Statement
-circ = Assignment "Circumference" $ Aop "*" (Aop "*" (Lit (Intval 3)) (Var "Radius")) (Lit (Intval 2))
+circ :: Statement   --2*pi*r or dia*pi
+circ = Assignment "Circumference" $ Aop "*" (Var "Diameter") (Lit (Intval 3))
 
-area :: Statement
-area = Assignment "Area" $ Aop "*" (Aop "*" (Aop "*" (Var "Radius") (Var "Radius")) (Lit (Intval 3))) (Lit (Intval 4))
+area :: Statement   --4*pi*r^2 or 2*2*pi*r*r or circ*dia
+area = Assignment "Area" $ Aop "*" (Var "Circumference") (Var "Diameter")
 
-vol :: Statement
+vol :: Statement    --(4/3)*pi*r^3 or area*r/3
 vol = Assignment "Volume" $ Aop "/" (Aop "*" (Var "Area") (Var "Radius")) (Lit (Intval 3))
 
 -- Example: generate infinite list of Fibonacci numbers
