@@ -92,7 +92,7 @@ fib :: State -> Statement
 fib state = Loop (Blit (Boolval True)) (fibBlock state)
 
 fibBlock :: State -> Statement
-fibBlock state = Block $ Nonnil (calcNewVal state) $ Nonnil counterIncrease $ Nil
+fibBlock state = Block $ Nonnil (calcNewVal state) $ Nonnil counterIncrease Nil
 
 calcNewVal :: State -> Statement
 calcNewVal state = Assignment newVarName $ Aop "+" v1 v2  --create new Var with the value v1 + v2
@@ -120,6 +120,10 @@ Prelude> sFib3 = m (fibBlock sFib2) sFib2
 Prelude> sFib4 = m (fibBlock sFib3) sFib3
 Prelude> sFib5 = m (fibBlock sFib4) sFib4
 Prelude> sFib6 = m (fibBlock sFib5) sFib5
+Prelude> sFib7 = m (fibBlock sFib6) sFib6
+Prelude> sFib8 = m (fibBlock sFib7) sFib7
+Prelude> sFib9 = m (fibBlock sFib8) sFib8
+Prelude> sFib10 = m (fibBlock sFib9) sFib9
 Prelude>
 Prelude> sFib
     [("counter",Intval 3),("Intval 2",Intval 1),("Intval 1",Intval 1)]
@@ -133,8 +137,20 @@ Prelude> sFib5
     [("counter",Intval 7),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
 Prelude> sFib6
     [("counter",Intval 8),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> sFib7
+    [("counter",Intval 9),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),
+    ("Intval 1",Intval 1)]
+Prelude> sFib8
+    [("counter",Intval 10),("Intval 9",Intval 34),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),
+    ("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> sFib9
+    [("counter",Intval 11),("Intval 10",Intval 55),("Intval 9",Intval 34),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),
+    ("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> sFib10
+    [("counter",Intval 12),("Intval 11",Intval 89),("Intval 10",Intval 55),("Intval 9",Intval 34),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),
+    ("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
 Prelude> runFib
-Interrupted.    --????
-Prelude> take 5 $ runFib    
-Interrupted.    --????
+    Interrupted.    --????
+Prelude> take 5 $ runFib
+    Interrupted.    --????
 -}
