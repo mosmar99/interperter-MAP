@@ -81,18 +81,40 @@ pTest = Block (Nonnil p1 (Nonnil p0 (Nonnil p0 Nil)))
 run :: Statement -> State 
 run program = m program s1
 
+-- Example: (approximately) calculate diameter, circumference, surface area and volume of a sphere given a radius r
+runSphere :: State
+runSphere = m (Block sphere) sSphere
+
+sSphere :: State
+sSphere = [("Radius",(Intval 7))]
+
+sphere :: Blocktype
+sphere = Nonnil dia $ Nonnil circ $ Nonnil area $ Nonnil vol Nil
+
+dia :: Statement
+dia = Assignment "Diameter" (Aop "*" (Lit (Intval 2)) (Var "Radius"))
+
+circ :: Statement
+circ = Assignment "Circumference" $ Aop "*" (Aop "*" (Lit (Intval 3)) (Var "Radius")) (Lit (Intval 2))
+
+area :: Statement
+area = Assignment "Area" $ Aop "*" (Aop "*" (Aop "*" (Var "Radius") (Var "Radius")) (Lit (Intval 3))) (Lit (Intval 4))
+
+vol :: Statement
+vol = Assignment "Volume" $ Aop "/" (Aop "*" (Var "Area") (Var "Radius")) (Lit (Intval 3))
+
 -- Example: generate infinite list of Fibonacci numbers
-runFib :: State
+{-runFib :: State
 runFib = m (fib sFib) sFib
 
 sFib :: State
 sFib = [("counter",(Intval 3)),("Intval 2",(Intval 1)),("Intval 1",(Intval 1))]
 
 fib :: State -> Statement
-fib state = Loop (Blit (Boolval True)) (fibBlock state)
+fib state = Loop (Rop "<" (Var "counter") (Lit (Intval 10))) (Block $ fibBlock state)
 
-fibBlock :: State -> Statement
-fibBlock state = Block $ Nonnil (calcNewVal state) $ Nonnil counterIncrease Nil
+fibBlock :: State -> Blocktype
+fibBlock state = Nonnil (calcNewVal state) $ Nonnil counterIncrease Nil
 
 calcNewVal :: State -> Statement
 calcNewVal state = Assignment newVarName $ Aop "+" v1 v2  --create new Var with the value v1 + v2
@@ -102,8 +124,8 @@ calcNewVal state = Assignment newVarName $ Aop "+" v1 v2  --create new Var with 
                                         --sFib !! 0 is counter
 counterIncrease :: Statement
 counterIncrease = Assignment "counter" $ Aop "+" (Var "counter") $ Lit $ Intval 1   --increase "counter" with 1
-
-{-  Pseudo-code
+-}
+{-  Pseudo code
 while(True){
     v1 = 2nd to last number
     v2 = last number
