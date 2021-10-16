@@ -83,22 +83,22 @@ run program = m program s1
 
 -- Example: generate infinite list of Fibonacci numbers
 runFib :: State
-runFib = m fib sFib
+runFib = m (fib sFib) sFib
 
 sFib :: State
 sFib = [("counter",(Intval 3)),("Intval 2",(Intval 1)),("Intval 1",(Intval 1))]
 
-fib :: Statement
-fib = Loop (Blit (Boolval True)) fibBlock
+fib :: State -> Statement
+fib state = Loop (Blit (Boolval True)) (fibBlock state)
 
-fibBlock :: Statement
-fibBlock = Block $ Nonnil calcNewVal $ Nonnil counterIncrease $ Nil
+fibBlock :: State -> Statement
+fibBlock state = Block $ Nonnil (calcNewVal state) $ Nonnil counterIncrease $ Nil
 
-calcNewVal :: Statement
-calcNewVal = Assignment newVarName $ Aop "+" v1 v2  --create new Var with the value v1 + v2
-    where newVarName = show $ get "counter" sFib    --the value of "counter" is used for the name of the new fibonacci number
-          v1 = Lit $ snd $ sFib !! 2    --2nd to last value
-          v2 = Lit $ snd $ sFib !! 1    --last value
+calcNewVal :: State -> Statement
+calcNewVal state = Assignment newVarName $ Aop "+" v1 v2  --create new Var with the value v1 + v2
+    where newVarName = show $ get "counter" state   --the value of "counter" is used for the name of the new fibonacci number
+          v1 = Lit $ snd $ state !! 2   --2nd to last value
+          v2 = Lit $ snd $ state !! 1   --last value
                                         --sFib !! 0 is counter
 counterIncrease :: Statement
 counterIncrease = Assignment "counter" $ Aop "+" (Var "counter") $ Lit $ Intval 1   --increase "counter" with 1
@@ -115,20 +115,26 @@ while(True){
 -}
 
 {-  output example
+Prelude> sFib2 = m (fibBlock sFib) sFib
+Prelude> sFib3 = m (fibBlock sFib2) sFib2
+Prelude> sFib4 = m (fibBlock sFib3) sFib3
+Prelude> sFib5 = m (fibBlock sFib4) sFib4
+Prelude> sFib6 = m (fibBlock sFib5) sFib5
+Prelude>
 Prelude> sFib
     [("counter",Intval 3),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib2 = m fibBlock sFib
-Prelude> sFib3 = m fibBlock sFib2
-Prelude> sFib4 = m fibBlock sFib3
-
-Prelude>
-Prelude>
-Prelude> sFib
-    [("counter",Intval 3),("Intval 2",Intval 1),("Intval 1",Intval 1)]  --fine
 Prelude> sFib2
-    [("counter",Intval 4),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]    --fine
+    [("counter",Intval 4),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
 Prelude> sFib3
-    [("counter",Intval 5),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]    --("Intval 4",Intval 3) is missing
+    [("counter",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
 Prelude> sFib4
-    [("counter",Intval 6),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]    --("Intval 4",Intval 3) and ("Intval 5",Intval 5) are missing
+    [("counter",Intval 6),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> sFib5
+    [("counter",Intval 7),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> sFib6
+    [("counter",Intval 8),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
+Prelude> runFib
+Interrupted.    --????
+Prelude> take 5 $ runFib    
+Interrupted.    --????
 -}
