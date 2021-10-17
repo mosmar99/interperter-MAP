@@ -86,7 +86,7 @@ runSphere :: State
 runSphere = m (Block sphere) sSphere
 
 sSphere :: State
-sSphere = [("Radius",(Intval 7))]
+sSphere = [("Radius",(Intval 120))]
 
 sphere :: Blocktype
 sphere = Nonnil dia $ Nonnil circ $ Nonnil area $ Nonnil vol Nil
@@ -103,6 +103,13 @@ area = Assignment "Area" $ Aop "*" (Var "Circumference") (Var "Diameter")
 vol :: Statement    --(4/3)*pi*r^3 or area*r/3
 vol = Assignment "Volume" $ Aop "/" (Aop "*" (Var "Area") (Var "Radius")) (Lit (Intval 3))
 
+{-  run examples
+Prelude> runSphere      -- radius = 7
+    [("Volume",Intval 1372),("Area",Intval 588),("Circumference",Intval 42),("Diameter",Intval 14),("Radius",Intval 7)]
+Prelude> runSphere      -- radius = 120
+    [("Volume",Intval 6912000),("Area",Intval 172800),("Circumference",Intval 720),("Diameter",Intval 240),("Radius",Intval 120)]
+-}
+
 -- Example: get largest pythagoran triple sum (circumference) with integer sides < N
 runPyth :: State
 runPyth = m firstLoop sPyth
@@ -111,7 +118,7 @@ sPyth :: State
 sPyth = [("a",(Intval 1)),("b",(Intval 1)),("c",(Intval 1)),("maxA",(Intval 0)),("maxB",(Intval 0)),("maxC",(Intval 0)),("maxSum",(Intval 0))]
 
 firstLoop :: Statement
-firstLoop = Loop (Rop "<" (Var "c") (Lit (Intval 100))) (Block secondBody)  --Intval N limits each of the three sides to a max length of (N-1)
+firstLoop = Loop (Rop "<" (Var "c") (Lit (Intval 20))) (Block secondBody)  --Intval N limits each of the three sides to a max length of (N-1)
             --the outmost loop: while(c < N)                do this
 secondBody :: Blocktype
 secondBody = Nonnil secondLoop $ Nonnil (Assignment "b" (Lit (Intval 1))) $ Nonnil (Assignment "c" $ Aop "+" (Var "c") $ Lit $ Intval 1) Nil
@@ -144,6 +151,13 @@ thenBranch :: Statement
 thenBranch = Block $ Nonnil (Assignment "maxA" (Var "a")) $ Nonnil (Assignment "maxB" (Var "b")) $ Nonnil (Assignment "maxC" (Var "c")) $ 
                      Nonnil (Assignment "maxSum" ((Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")))) Nil
                             --update maxA, maxB and maxC to their respective a,b,c vales and update maxSum = a + b + c
+{-  run examples
+Prelude> runPyth    -- N = 100
+    [("c",Intval 100),("b",Intval 1),("a",Intval 1),("maxSum",Intval 234),("maxC",Intval 97),("maxB",Intval 72),("maxA",Intval 65)]
+Prelude> runPyth    -- N = 20
+    [("c",Intval 20),("b",Intval 1),("a",Intval 1),("maxSum",Intval 40),("maxC",Intval 17),("maxB",Intval 15),("maxA",Intval 8)]
+-}
+
 {-  Pseudo code
 a = 1
 b = 1
@@ -176,7 +190,7 @@ runFact :: State
 runFact = m factIf sFact
 
 sFact :: State
-sFact = [("counter",(Intval 1)),("Input",(Intval 7)),("Output",(Intval 1))]
+sFact = [("counter",(Intval 1)),("Input",(Intval 11)),("Output",(Intval 1))]
 
 factIf :: Statement
 factIf = Conditional (Rop ">" (Var "Input") (Lit (Intval 0))) (factLoop) Skip
@@ -187,6 +201,14 @@ factLoop = Loop (Rop "<=" (Var "counter") (Var "Input")) (Block factInnerBody)
 factInnerBody :: Blocktype
 factInnerBody = Nonnil (Assignment "Output" (Aop "*" (Var "Output") (Var "counter"))) $ Nonnil (Assignment "counter" (Aop "+" (Var "counter") (Lit (Intval 1)))) Nil
                                     --Output = Output * counter                                     then increase "counter" by 1
+
+{-  run examples
+Prelude> runFact        -- 5!
+    [("counter",Intval 6),("Output",Intval 120),("Input",Intval 5)]
+Prelude> runFact        -- 11!
+    [("counter",Intval 12),("Output",Intval 39916800),("Input",Intval 11)]
+-}
+
 {-  Pseudo code
 input = 7
 output = 1
