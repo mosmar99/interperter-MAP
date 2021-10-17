@@ -22,7 +22,7 @@ get :: Variable -> State -> Value
 get var ((nm,val):binds) = if var == nm then val else get var binds
 
 onion :: Variable -> Value -> State -> State
-onion var valExc = map (\(nm, valCurr) -> if nm == var then (nm, valExc) else (nm, valCurr))
+onion var val st = (var,val) : [x | x <- st, var /= fst x]
 
 eval:: Expression -> State -> Value
 eval (Var v) binds = get v binds
