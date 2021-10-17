@@ -9,7 +9,9 @@ type Body = Statement
 type Thenbranch = Statement
 type Elsebranch = Statement
 
-data Value = Intval Integer deriving (Eq, Ord,Show)
+data Value = Intval Integer deriving (Eq, Ord)
+instance Show Value where
+  show (Intval x) = show x
 data Expression = Var Variable | Lit Value | Aop Op Expression Expression deriving (Eq,Ord,Show)
 data Bexpression = Blit Bvalue | Bop Op Bexpression Bexpression | Rop Op Expression Expression deriving (Eq, Ord,Show)
 data Bvalue = Boolval Bool deriving (Eq, Ord,Show)
@@ -85,23 +87,15 @@ run program = m program s1
 fibState :: State
 fibState = [("F_0",Intval 0),("F_1",Intval 1)]
 
-fibNext :: State -> Int -> State
-fibNext state n = [newFib]
+fibNext :: State -> Value -> State
+fibNext state (Intval n) = [newFib]
  where
    str = "F_"
-   t0 = get (str ++ show (n-3)) state
-   t1 = get (str ++ show (n-2)) state
+   t0 = get (str ++ show (apply "-" (Intval n) (Intval 3))) state
+   t1 = get (str ++ show (apply "-" (Intval n) (Intval 2))) state
    newFib_val = apply "+" t0 t1
-   newFib = (str ++ show (n-1), newFib_val) 
-{-
-getFibN :: State -> (State -> Int -> State) -> Int -> State
-getFibN state fibNext 1 = [("0", get "0" state)]
-getFibN state fibNext 2 = [("0", get "0" state), ("1", get "1" state)]
-getFibN state fibNext n 
-  | if()gitFibN (state ++ fibNext state (3)) -- need to add el's from 3 up to n
+   newFib = (str ++ show (apply "-" (Intval n) (Intval 1)), newFib_val)
 
-
-  -- 0,1,1,2,3,5,8,13..
-  -- 0,1 = [1,1]
-  -- [0,1,1]
--}
+getFibN :: State -> (State -> Value -> State) -> Value -> State
+getFibN state fibNext (Intval 1) = [("F_0", get "F_0" state)] -- need to add el's from 3 up to n
+getFibN state fibNext n = if rapply ">=" n (Intval 3) == Boolval True then getFibN state fibNext (apply "-" n (Intval 1)) ++ fibNext (getFibN state fibNext (apply "-" n (Intval 1))) n else state
