@@ -99,7 +99,9 @@ fibNext state (Intval n) = [newFib]
 
 getFibN :: State -> (State -> Value -> State) -> Value -> State
 getFibN state fibNext (Intval 1) = [("F_0", get "F_0" state)] -- need to add el's from 3 up to n
-getFibN state fibNext n = if rapply ">=" n (Intval 3) == Boolval True then getFibN state fibNext (apply "-" n (Intval 1)) ++ fibNext (getFibN state fibNext (apply "-" n (Intval 1))) n else state
+getFibN state fibNext n = if rapply ">=" n (Intval 3) == Boolval True 
+                          then getFibN state fibNext (apply "-" n (Intval 1)) ++ fibNext (getFibN state fibNext (apply "-" n (Intval 1))) n 
+                          else state
 
 -- Example: (approximately) calculate diameter, circumference, surface area and volume of a sphere given a radius r
 runSphere :: State
