@@ -111,8 +111,8 @@ sPyth :: State
 sPyth = [("a",(Intval 1)),("b",(Intval 1)),("c",(Intval 1)),("maxA",(Intval 0)),("maxB",(Intval 0)),("maxC",(Intval 0)),("maxSum",(Intval 0))]
 
 firstLoop :: Statement
-firstLoop = Loop (Rop "<" (Var "c") (Lit (Intval 100))) (Block secondBody)  --Intval N limits each of the three sides to a max lenght of (N-1)
-            --the outmost loop: while(c < 100)              do this
+firstLoop = Loop (Rop "<" (Var "c") (Lit (Intval 100))) (Block secondBody)  --Intval N limits each of the three sides to a max length of (N-1)
+            --the outmost loop: while(c < N)                do this
 secondBody :: Blocktype
 secondBody = Nonnil secondLoop $ Nonnil (Assignment "b" (Lit (Intval 1))) $ Nonnil (Assignment "c" $ Aop "+" (Var "c") $ Lit $ Intval 1) Nil
             --do middle loop            then reset "b" for further checking                 then increase "c" by 1
@@ -124,10 +124,10 @@ thirdBody = Nonnil thirdLoop $ Nonnil (Assignment "a" (Lit (Intval 1))) $ Nonnil
             --do the inner most loop    then reset "a" for further checking                 then increase "b" by 1
 thirdLoop :: Statement
 thirdLoop = Loop (Rop "<" (Var "a") (Var "b")) (Block innerBody)
-                        --inner most loop: while(a < b)
+            --inner most loop: while(a < b)     do this
 innerBody :: Blocktype
 innerBody = Nonnil ifStatement $ Nonnil (Assignment "a" $ Aop "+" (Var "a") $ Lit $ Intval 1) Nil
-                        --all the contents of the most inner loop
+            --do if-statement                   then increase "a" by 1
 ifStatement :: Statement
 ifStatement = Conditional (test) (thenBranch) Skip
                         --test is true when a new identity with a larger sum is found
@@ -139,11 +139,11 @@ leftTest = Rop "==" (Aop "+" (Aop "*" (Var "a") (Var "a")) (Aop "*" (Var "b") (V
                         --check pythagoran identity (a*a + b*b == c*c)
 rightTest :: Bexpression
 rightTest = Rop ">" (Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")) (Var "maxSum")
-                        --check a + b + c > maxSum
+                        --check if a + b + c > maxSum
 thenBranch :: Statement
 thenBranch = Block $ Nonnil (Assignment "maxA" (Var "a")) $ Nonnil (Assignment "maxB" (Var "b")) $ Nonnil (Assignment "maxC" (Var "c")) $ 
                      Nonnil (Assignment "maxSum" ((Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")))) Nil
-
+                            --update maxA, maxB and maxC to their respective a,b,c vales and update maxSum = a + b + c
 {-  Pseudo code
 a = 1
 b = 1
@@ -186,7 +186,7 @@ factLoop = Loop (Rop "<=" (Var "counter") (Var "Input")) (Block factInnerBody)
                         --while(counter <= Input)           do this
 factInnerBody :: Blocktype
 factInnerBody = Nonnil (Assignment "Output" (Aop "*" (Var "Output") (Var "counter"))) $ Nonnil (Assignment "counter" (Aop "+" (Var "counter") (Lit (Intval 1)))) Nil
-                                    --Output = Output * counter                                                 increase "counter" by 1
+                                    --Output = Output * counter                                     then increase "counter" by 1
 {-  Pseudo code
 input = 7
 output = 1
