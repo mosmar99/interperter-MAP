@@ -170,3 +170,31 @@ while(c < 10){
     c++
 }
 -}
+
+-- Exampel: factorial
+runFact :: State
+runFact = m factIf sFact
+
+sFact :: State
+sFact = [("counter",(Intval 1)),("Input",(Intval 7)),("Output",(Intval 1))]
+
+factIf :: Statement
+factIf = Conditional (Rop ">" (Var "Input") (Lit (Intval 0))) (factLoop) Skip
+
+factLoop :: Statement
+factLoop = Loop (Rop "<=" (Var "counter") (Var "Input")) (Block factInnerBody)
+
+factInnerBody :: Blocktype
+factInnerBody = Nonnil (Assignment "Output" (Aop "*" (Var "Output") (Var "counter"))) $ Nonnil (Assignment "counter" (Aop "+" (Var "counter") (Lit (Intval 1)))) Nil
+
+{-  Pseudo code
+input = 5
+output = 1
+counter = 1
+if(input > 0){
+    while(counter <= input){
+        output *= counter
+        counter++
+    }
+}
+-}
