@@ -106,7 +106,7 @@ runSphere :: State
 runSphere = m (Block sphere) sSphere
 
 sSphere :: State
-sSphere = [("Radius",(Intval 120))]
+sSphere = [("Radius",Intval 120)]
 
 sphere :: Blocktype
 sphere = Nonnil dia $ Nonnil circ $ Nonnil area $ Nonnil vol Nil
@@ -128,7 +128,7 @@ runPyth :: State
 runPyth = m firstLoop sPyth
 
 sPyth :: State
-sPyth = [("a",(Intval 1)),("b",(Intval 1)),("c",(Intval 1)),("maxA",(Intval 0)),("maxB",(Intval 0)),("maxC",(Intval 0)),("maxSum",(Intval 0))]
+sPyth = [("a",Intval 1),("b",Intval 1),("c",Intval 1),("maxA",Intval 0),("maxB",Intval 0),("maxC",Intval 0),("maxSum",Intval 0)]
 
 firstLoop :: Statement
 firstLoop = Loop (Rop "<" (Var "c") (Lit (Intval 20))) (Block secondBody)  --Intval N limits each of the three sides to a max length of (N-1)
@@ -149,10 +149,10 @@ innerBody :: Blocktype
 innerBody = Nonnil ifStatement $ Nonnil (Assignment "a" $ Aop "+" (Var "a") $ Lit $ Intval 1) Nil
             --do if-statement                   then increase "a" by 1
 ifStatement :: Statement
-ifStatement = Conditional (test) (thenBranch) Skip
+ifStatement = Conditional test thenBranch Skip
                         --test is true when a new identity with a larger sum is found
 test :: Bexpression
-test = Bop "&&" (leftTest) (rightTest)
+test = Bop "&&" leftTest rightTest
 
 leftTest :: Bexpression
 leftTest = Rop "==" (Aop "+" (Aop "*" (Var "a") (Var "a")) (Aop "*" (Var "b") (Var "b"))) (Aop "*" (Var "c") (Var "c"))
@@ -161,8 +161,8 @@ rightTest :: Bexpression
 rightTest = Rop ">" (Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")) (Var "maxSum")
                         --check if a + b + c > maxSum
 thenBranch :: Statement
-thenBranch = Block $ Nonnil (Assignment "maxA" (Var "a")) $ Nonnil (Assignment "maxB" (Var "b")) $ Nonnil (Assignment "maxC" (Var "c")) $ 
-                     Nonnil (Assignment "maxSum" ((Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")))) Nil
+thenBranch = Block $ Nonnil (Assignment "maxA" (Var "a")) $ Nonnil (Assignment "maxB" (Var "b")) $ Nonnil (Assignment "maxC" (Var "c")) $
+                     Nonnil (Assignment "maxSum" (Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c"))) Nil
                             --update maxA, maxB and maxC to their respective a,b,c vales and update maxSum = a + b + c
 
 {-  Pseudo code
@@ -197,10 +197,10 @@ runFact :: State
 runFact = m factIf sFact
 
 sFact :: State
-sFact = [("counter",(Intval 1)),("Input",(Intval 11)),("Output",(Intval 1))]
+sFact = [("counter",Intval 1),("Input",Intval 11),("Output",Intval 1)]
 
 factIf :: Statement
-factIf = Conditional (Rop ">" (Var "Input") (Lit (Intval 0))) (factLoop) Skip
+factIf = Conditional (Rop ">" (Var "Input") (Lit (Intval 0))) factLoop Skip
                         --filter illegal arguments (<0)
 factLoop :: Statement
 factLoop = Loop (Rop "<=" (Var "counter") (Var "Input")) (Block factInnerBody)
