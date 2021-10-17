@@ -1,3 +1,4 @@
+{-
 -- test 1
  PASSED
 ghci> get "red" [("yellow",(Intval 5)),("red",(Intval 3))]
@@ -58,3 +59,4 @@ Prelude> runFact        -- 5!
     [("counter",Intval 6),("Output",Intval 120),("Input",Intval 5)]
 Prelude> runFact        -- 11!
     [("counter",Intval 12),("Output",Intval 39916800),("Input",Intval 11)]
+-}
