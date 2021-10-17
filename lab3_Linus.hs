@@ -103,76 +103,70 @@ area = Assignment "Area" $ Aop "*" (Var "Circumference") (Var "Diameter")
 vol :: Statement    --(4/3)*pi*r^3 or area*r/3
 vol = Assignment "Volume" $ Aop "/" (Aop "*" (Var "Area") (Var "Radius")) (Lit (Intval 3))
 
--- Example: generate infinite list of Fibonacci numbers
-{-runFib :: State
-runFib = m (fib sFib) sFib
+-- Example: get largest pythagoran triple sum (circumference) with integer sides < N
+runPyth :: State
+runPyth = m firstLoop sPyth
 
-sFib :: State
-sFib = [("counter",(Intval 3)),("Intval 2",(Intval 1)),("Intval 1",(Intval 1))]
+sPyth :: State
+sPyth = [("a",(Intval 1)),("b",(Intval 1)),("c",(Intval 1)),("maxA",(Intval 0)),("maxB",(Intval 0)),("maxC",(Intval 0)),("maxSum",(Intval 0))]
 
-fib :: State -> Statement
-fib state = Loop (Rop "<" (Var "counter") (Lit (Intval 10))) (Block $ fibBlock state)
+firstLoop :: Statement
+firstLoop = Loop (Rop "<" (Var "c") (Lit (Intval 100))) (Block secondBody)
 
-fibBlock :: State -> Blocktype
-fibBlock state = Nonnil (calcNewVal state) $ Nonnil counterIncrease Nil
+secondBody :: Blocktype
+secondBody = Nonnil secondLoop $ Nonnil (Assignment "b" (Lit (Intval 1))) $ Nonnil (Assignment "c" $ Aop "+" (Var "c") $ Lit $ Intval 1) Nil
 
-calcNewVal :: State -> Statement
-calcNewVal state = Assignment newVarName $ Aop "+" v1 v2  --create new Var with the value v1 + v2
-    where newVarName = show $ get "counter" state   --the value of "counter" is used for the name of the new fibonacci number
-          v1 = Lit $ snd $ state !! 2   --2nd to last value
-          v2 = Lit $ snd $ state !! 1   --last value
-                                        --sFib !! 0 is counter
-counterIncrease :: Statement
-counterIncrease = Assignment "counter" $ Aop "+" (Var "counter") $ Lit $ Intval 1   --increase "counter" with 1
--}
+secondLoop :: Statement
+secondLoop = Loop (Rop "<" (Var "b") (Var "c")) (Block thirdBody)
+
+thirdBody :: Blocktype
+thirdBody = Nonnil thirdLoop $ Nonnil (Assignment "a" (Lit (Intval 1))) $ Nonnil (Assignment "b" $ Aop "+" (Var "b") $ Lit $ Intval 1) Nil
+
+thirdLoop :: Statement
+thirdLoop = Loop (Rop "<" (Var "a") (Var "b")) (Block innerBody)
+
+innerBody :: Blocktype
+innerBody = Nonnil ifStatement $ Nonnil (Assignment "a" $ Aop "+" (Var "a") $ Lit $ Intval 1) Nil
+
+ifStatement :: Statement
+ifStatement = Conditional (test) (thenBranch) (Block Nil)
+
+test :: Bexpression
+test = Bop "&&" (leftTest) (rightTest)
+
+leftTest :: Bexpression
+leftTest = Rop "==" (Aop "+" (Aop "*" (Var "a") (Var "a")) (Aop "*" (Var "b") (Var "b"))) (Aop "*" (Var "c") (Var "c"))
+
+rightTest :: Bexpression
+rightTest = Rop ">" (Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")) (Var "maxSum")
+
+thenBranch :: Statement
+thenBranch = Block $ Nonnil (Assignment "maxA" (Var "a")) $ Nonnil (Assignment "maxB" (Var "b")) $ Nonnil (Assignment "maxC" (Var "c")) $ 
+                     Nonnil (Assignment "maxSum" ((Aop "+" (Aop "+" (Var "a") (Var "b")) (Var "c")))) Nil
+
 {-  Pseudo code
-while(True){
-    v1 = 2nd to last number
-    v2 = last number
-    newNumber = v1 + v2
-    newVarName = <value of "counter">
-    (newVarName,newValue) : <list of fibonacci numbers>
-    counter = counter + 1
+a = 1
+b = 1
+c = 1
+maxSum = 3
+maxA = 1
+maxB = 1
+maxC = 1
+while(c < 10){
+    while(b < c){
+        while(a < b){
+            if(a*a + b*b == c*c && a + b + c > maxSum){
+                maxA = a
+                maxB = b
+                maxC = c
+                maxSum = a + b + c
+            }
+            a++
+        }
+        a = 1
+        b++
+    }
+    b = 1
+    c++
 }
--}
-
-{-  output example
-Prelude> sFib2 = m (fibBlock sFib) sFib
-Prelude> sFib3 = m (fibBlock sFib2) sFib2
-Prelude> sFib4 = m (fibBlock sFib3) sFib3
-Prelude> sFib5 = m (fibBlock sFib4) sFib4
-Prelude> sFib6 = m (fibBlock sFib5) sFib5
-Prelude> sFib7 = m (fibBlock sFib6) sFib6
-Prelude> sFib8 = m (fibBlock sFib7) sFib7
-Prelude> sFib9 = m (fibBlock sFib8) sFib8
-Prelude> sFib10 = m (fibBlock sFib9) sFib9
-Prelude>
-Prelude> sFib
-    [("counter",Intval 3),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib2
-    [("counter",Intval 4),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib3
-    [("counter",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib4
-    [("counter",Intval 6),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib5
-    [("counter",Intval 7),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib6
-    [("counter",Intval 8),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib7
-    [("counter",Intval 9),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),
-    ("Intval 1",Intval 1)]
-Prelude> sFib8
-    [("counter",Intval 10),("Intval 9",Intval 34),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),("Intval 3",Intval 2),
-    ("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib9
-    [("counter",Intval 11),("Intval 10",Intval 55),("Intval 9",Intval 34),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),("Intval 4",Intval 3),
-    ("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> sFib10
-    [("counter",Intval 12),("Intval 11",Intval 89),("Intval 10",Intval 55),("Intval 9",Intval 34),("Intval 8",Intval 21),("Intval 7",Intval 13),("Intval 6",Intval 8),("Intval 5",Intval 5),
-    ("Intval 4",Intval 3),("Intval 3",Intval 2),("Intval 2",Intval 1),("Intval 1",Intval 1)]
-Prelude> runFib
-    Interrupted.    --????
-Prelude> take 5 $ runFib
-    Interrupted.    --????
 -}
