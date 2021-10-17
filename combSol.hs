@@ -22,7 +22,7 @@ get :: Variable -> State -> Value
 get var ((nm,val):binds) = if var == nm then val else get var binds
 
 onion :: Variable -> Value -> State -> State
-onion var valExc = map (\(nm, valCurr) -> if nm == var then (nm, valExc) else (nm, valCurr))
+onion var valExc = map (\(nm, valCurr) -> if nm == var then (var, valExc) else (nm, valCurr))
 
 eval:: Expression -> State -> Value
 eval (Var v) binds = get v binds
@@ -99,14 +99,16 @@ fibNext state (Intval n) = [newFib]
 
 getFibN :: State -> (State -> Value -> State) -> Value -> State
 getFibN state fibNext (Intval 1) = [("F_0", get "F_0" state)] -- need to add el's from 3 up to n
-getFibN state fibNext n = if rapply ">=" n (Intval 3) == Boolval True then getFibN state fibNext (apply "-" n (Intval 1)) ++ fibNext (getFibN state fibNext (apply "-" n (Intval 1))) n else state
+getFibN state fibNext n = if rapply ">=" n (Intval 3) == Boolval True 
+                          then getFibN state fibNext (apply "-" n (Intval 1)) ++ fibNext (getFibN state fibNext (apply "-" n (Intval 1))) n 
+                          else state
 
 -- Example: (approximately) calculate diameter, circumference, surface area and volume of a sphere given a radius r
 runSphere :: State
 runSphere = m (Block sphere) sSphere
 
 sSphere :: State
-sSphere = [("Radius",Intval 120)]
+sSphere = [("Volume",Intval 0),("Area",Intval 0),("Circumference",Intval 0),("Diameter",Intval 0),("Radius",Intval 120)]
 
 sphere :: Blocktype
 sphere = Nonnil dia $ Nonnil circ $ Nonnil area $ Nonnil vol Nil
