@@ -22,7 +22,7 @@ get :: Variable -> State -> Value
 get var ((nm,val):binds) = if var == nm then val else get var binds
 
 onion :: Variable -> Value -> State -> State
-onion var val st = (var,val) : [x | x <- st, var /= fst x]
+onion var valExc = map (\(nm, valCurr) -> if nm == var then (var, valExc) else (nm, valCurr))
 
 eval:: Expression -> State -> Value
 eval (Var v) binds = get v binds
@@ -106,7 +106,7 @@ runSphere :: State
 runSphere = m (Block sphere) sSphere
 
 sSphere :: State
-sSphere = [("Radius",Intval 120)]
+sSphere = [("Volume",Intval 0),("Area",Intval 0),("Circumference",Intval 0),("Diameter",Intval 0),("Radius",Intval 120)]
 
 sphere :: Blocktype
 sphere = Nonnil dia $ Nonnil circ $ Nonnil area $ Nonnil vol Nil
