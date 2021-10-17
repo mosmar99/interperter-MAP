@@ -1,10 +1,10 @@
 -- test 1
-{- PASSED
+ PASSED
 ghci> get "red" [("yellow",(Intval 5)),("red",(Intval 3))]
 Intval 3
--}
 
-{- PASSED
+
+PASSED
 ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]  
 ghci> eval (Var "x") s1 
 Intval 1
@@ -12,17 +12,16 @@ ghci> eval (Aop "+" (Var "x") (Lit (Intval 4))) s1
 Intval 5
 ghci> eval (Aop "+" (Var "x") (Aop "*" (Lit (Intval 4)) (Var "y"))) s1
 Intval 21
--}
 
-{- PASSED
+PASSED
 ghci> s1=[("x",(Intval 1)) ,("y",(Intval 5))]
 ghci> beval (Bop "&&" (Blit (Boolval True)) (Rop "<" (Var "x") (Lit (Intval 3)))) s1
 Boolval True
 ghci> beval (Bop "&&" (Rop "<" (Var "y") (Lit (Intval 2))) (Rop "<" (Var "x") (Lit (Intval 3)))) s1
 Boolval False
--}
 
-{- PASSED
+
+PASSED
 ghci> m p0 s1
 [("x",Intval 2),("y",Intval 5)]
 ghci> m p1 s1
@@ -30,6 +29,7 @@ ghci> m p1 s1
 ghci> m p2 s1
 [("x",Intval 6),("y",Intval 5)]
 
+-- Fibonacci numbers
 ghci> getFibN fibState fibNext (Intval 7)
 [("F_0",0),("F_1",1),("F_2",1),("F_3",2),("F_4",3),("F_5",5),("F_6",8)]
 ghci> getFibN fibState fibNext (Intval 1)
@@ -38,4 +38,23 @@ ghci> getFibN fibState fibNext (Intval 2)
 [("F_0",0),("F_1",1)]
 ghci> getFibN fibState fibNext (Intval 15)
 [("F_0",0),("F_1",1),("F_2",1),("F_3",2),("F_4",3),("F_5",5),("F_6",8),("F_7",13),("F_8",21),("F_9",34),("F_10",55),("F_11",89),("F_12",144),("F_13",233),("F_14",377)]
--}
+
+-- Sphere
+  run examples
+Prelude> runSphere      -- radius = 7
+    [("Volume",Intval 1372),("Area",Intval 588),("Circumference",Intval 42),("Diameter",Intval 14),("Radius",Intval 7)]
+Prelude> runSphere      -- radius = 120
+    [("Volume",Intval 6912000),("Area",Intval 172800),("Circumference",Intval 720),("Diameter",Intval 240),("Radius",Intval 120)]
+
+-- Pythogorian tripple sum
+run examples
+Prelude> runPyth    -- N = 100
+    [("c",Intval 100),("b",Intval 1),("a",Intval 1),("maxSum",Intval 234),("maxC",Intval 97),("maxB",Intval 72),("maxA",Intval 65)]
+Prelude> runPyth    -- N = 20
+    [("c",Intval 20),("b",Intval 1),("a",Intval 1),("maxSum",Intval 40),("maxC",Intval 17),("maxB",Intval 15),("maxA",Intval 8)]
+
+-- factorial
+Prelude> runFact        -- 5!
+    [("counter",Intval 6),("Output",Intval 120),("Input",Intval 5)]
+Prelude> runFact        -- 11!
+    [("counter",Intval 12),("Output",Intval 39916800),("Input",Intval 11)]
